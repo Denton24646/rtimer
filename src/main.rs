@@ -1,8 +1,6 @@
 extern crate rtimer;
-
 use std::env;
 use std::process;
-
 
 use rtimer::Config;
 

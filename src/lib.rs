@@ -1,17 +1,28 @@
 use std::error::Error;
 use std::env;
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 use std::thread::sleep;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("Waiting {} {}...", config.time, config.interval);
+    println!(">>Waiting {} {}...", config.time, config.interval);
 
-    let duration = Duration::from_secs(config.time);
+    let mut duration = Duration::from_secs(config.time);
+    let increment = Duration::new(1, 0);
+
+    loop {
+    match duration.checked_sub(increment) {
+        Some(_) => {
+            println!("Time passed: {:?} ", duration);
+            duration -= increment;
+            sleep(increment); 
+        }
+        None => {
+            println!(">>Done! Waited {} {}...", config.time, config.interval); 
+            break
+            }
+        }
+    }
     
-    sleep(duration);
-
-    println!("I finished waiting. The time is now {:?} ", Instant::now());
-
     Ok(())
 }
 
