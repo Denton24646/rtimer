@@ -1,27 +1,52 @@
-use std::error::Error;
 use std::env;
-use std::time::{Duration};
+use std::thread;
+use std::io;
+use std::error::Error;
+use std::time::Duration;
 use std::thread::sleep;
+use std::sync::mpsc;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!(">>Waiting {} {}...", config.time, config.interval);
 
     let mut duration = Duration::from_secs(config.time);
     let increment = Duration::new(1, 0);
+    let (tx, rx) = mpsc::channel();
 
-    loop {
-    match duration.checked_sub(increment) {
-        Some(new_duration) => {
-            println!("Time passed: {:?} ", duration);
-            duration = new_duration;
-            sleep(increment); 
-        }
-        None => {
-            println!(">>Done! Waited {} {}...", config.time, config.interval); 
-            break
+    thread::spawn(move || {
+        loop {
+        let received = rx.try_recv();
+        match received {
+            Ok(_) => {
+                sleep(Duration::from_secs(400000000000))
+            }
+            Err(_) => {
+                continue
             }
         }
+        match duration.checked_sub(increment) {
+            Some(new_duration) => {
+                println!("Time passed: {:?} ", duration);
+                duration = new_duration;
+                sleep(increment); 
+            }
+            None => {
+                println!(">>Done! Waited {} {}...", config.time, config.interval); 
+                break
+                }
+            }
+        }
+    });
+
+    let mut input = String::new();
+    match io::stdin().read_line(&mut input) {
+        Ok(_) => {
+            tx.send(input).unwrap()
+        }
+        Err(error) => println!("error: {}", error),
     }
+
+    
     
     Ok(())
 }
