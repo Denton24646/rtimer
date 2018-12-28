@@ -11,9 +11,9 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     loop {
     match duration.checked_sub(increment) {
-        Some(_) => {
+        Some(new_duration) => {
             println!("Time passed: {:?} ", duration);
-            duration -= increment;
+            duration = new_duration;
             sleep(increment); 
         }
         None => {
