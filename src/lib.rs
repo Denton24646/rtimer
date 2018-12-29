@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::env;
-use std::time::{Duration};
+use std::time::Duration;
 use std::thread::sleep;
 use std::string::String;
 
@@ -19,22 +19,48 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         _ => Duration::from_secs(config.time),
     };
 
-    loop {
-    match duration.checked_sub(increment) {
-        Some(new_duration) => {
-            println!("Time passed: {:?} ", duration);
-            duration = new_duration;
-            sleep(increment); 
+    if config.countdown { 
+        loop {
+            match duration.checked_sub(increment) {
+                Some(new_duration) => {
+                    println!("Tick: {:?} ", duration);
+                    duration = new_duration;
+                    sleep(increment); 
+                }
+                None => {
+                    println!(">>Done! Waited {} {}...", config.time, config.interval); 
+                    break
+                    }
+                }
+            }
+        Ok(())
         }
-        None => {
-            println!(">>Done! Waited {} {}...", config.time, config.interval); 
-            break
+    else {
+        loop {
+            match duration.checked_add(increment) {
+                Some(new_duration) => {
+                    println!("Tick: {:?} ", new_duration);
+                    match duration.checked_sub(new_duration) {
+                        Some(_) => {
+                        println!(">>Done! Waited {} {}...", config.time, config.interval); 
+                        break
+                        }
+                        None => {
+                            duration = new_duration;
+                            sleep(increment); 
+                        }
+                    }
+                }
+                None => {
+                    println!("Max overflow"); 
+                    break
+                }
             }
         }
+        Ok(())
     }
-    
-    Ok(())
 }
+    
 
 pub struct Config {
     pub time: u64,
