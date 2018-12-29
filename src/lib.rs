@@ -7,8 +7,17 @@ use std::string::String;
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!(">>Waiting {} {} {}", config.time, config.interval, config.countdown_description(config.countdown));
 
-    let mut duration = Duration::from_secs(config.time);
-    let increment = Duration::new(1, 0);
+    let mut duration = match config.interval.as_ref() {
+        "seconds" => Duration::from_secs(config.time),
+        "minutes" => Duration::from_secs(config.time * 60),
+        _ => Duration::from_secs(config.time),
+    };
+
+    let increment = match config.interval.as_ref() {
+        "seconds" => Duration::new(1, 0),
+        "minutes" => Duration::new(5, 0),
+        _ => Duration::from_secs(config.time),
+    };
 
     loop {
     match duration.checked_sub(increment) {
