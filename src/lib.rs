@@ -40,7 +40,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         loop {
             match duration.checked_add(increment) {
                 Some(new_duration) => {
-                    println!("Tick: {:?} ", new_duration);
+                    println!("Tick: {:?} ", {new_duration - d});
                     match d.checked_sub(new_duration - d) {
                         Some(_) => {
                             duration = new_duration;
