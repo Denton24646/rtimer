@@ -36,18 +36,19 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         Ok(())
         }
     else {
+        let d = duration.clone();
         loop {
             match duration.checked_add(increment) {
                 Some(new_duration) => {
                     println!("Tick: {:?} ", new_duration);
-                    match duration.checked_sub(new_duration) {
+                    match d.checked_sub(new_duration - d) {
                         Some(_) => {
-                        println!(">>Done! Waited {} {}...", config.time, config.interval); 
-                        break
-                        }
-                        None => {
                             duration = new_duration;
                             sleep(increment); 
+                        }
+                        None => {
+                        println!(">>Done! Waited {} {}...", config.time, config.interval); 
+                        break
                         }
                     }
                 }
